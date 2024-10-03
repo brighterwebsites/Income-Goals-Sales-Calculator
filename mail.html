@@ -1,0 +1,20 @@
+ <h3>Income Calculator</h3>
+    <div class="container">
+        <label for="incomeGoal"><b>Monthly </b>Income Goal: </label>
+        <input type="number" id="incomeGoal">
+        <br>
+        <label for="clientValue"><b>Average</b> Client Value: </label>
+        <input type="number" id="clientValue">
+        <br>
+        <label for="workDays">How Many <b>Days a Week</b> will you Work (Work Days): </label>
+        <input type="number" id="workDays">
+        <br>
+        <label for="clientsDaily">How many <b>clients</b> do you think you could see each work day? (ClientsDaily): </label>
+        <input type="number" id="clientsDaily">
+        <br>
+        <button onclick="calculate()">Calculate</button>
+    </div>
+
+    <h3>Results</h3>
+    <div id="results"></div>
+    <p class="result-notes">*some figures have been rounded during calculations</p>
