@@ -1,20 +1,114 @@
- <h3>Income Calculator</h3>
-    <div class="container">
-        <label for="incomeGoal"><b>Monthly </b>Income Goal: </label>
-        <input type="number" id="incomeGoal">
-        <br>
-        <label for="clientValue"><b>Average</b> Client Value: </label>
-        <input type="number" id="clientValue">
-        <br>
-        <label for="workDays">How Many <b>Days a Week</b> will you Work (Work Days): </label>
-        <input type="number" id="workDays">
-        <br>
-        <label for="clientsDaily">How many <b>clients</b> do you think you could see each work day? (ClientsDaily): </label>
-        <input type="number" id="clientsDaily">
-        <br>
-        <button onclick="calculate()">Calculate</button>
-    </div>
+<h3>Income Calculator</h3>
+<div class="container">
+    <label for="incomeGoal"><b>Monthly </b>Income Goal: </label>
+    <input type="number" id="incomeGoal">
+    <br>
+    <label for="clientValue"><b>Average</b> Client Value: </label>
+    <input type="number" id="clientValue">
+    <br>
+    <label for="workDays">How Many <b>Days a Week</b> will you Work (Work Days): </label>
+    <input type="number" id="workDays">
+    <br>
+    <label for="clientsDaily">How many <b>clients</b> do you think you could see each work day? (ClientsDaily): </label>
+    <input type="number" id="clientsDaily">
+    <br>
+    <button onclick="calculate()">Calculate</button>
+</div>
 
-    <h3>Results</h3>
-    <div id="results"></div>
-    <p class="result-notes">*some figures have been rounded during calculations</p>
+<h3>Results</h3>
+<div id="results"></div>
+<p class="result-notes">*some figures have been rounded during calculations</p>
+
+<script>
+function roundUpToNearest10(num) {
+    return Math.ceil(num / 10) * 10;
+}
+
+function roundUpToNearest(num) {
+    return Math.ceil(num);
+}
+
+function formatCurrency(num) {
+    return num.toLocaleString('en-AU', { style: 'currency', currency: 'AUD' });
+}
+
+function calculate() {
+    const GA = parseFloat(document.getElementById('incomeGoal').value);
+    const WorkDays = parseFloat(document.getElementById('workDays').value);
+    const CV = parseFloat(document.getElementById('clientValue').value);
+    const ClientsDaily = parseFloat(document.getElementById('clientsDaily').value);
+
+    if (isNaN(GA) || isNaN(WorkDays) || isNaN(CV) || isNaN(ClientsDaily)) {
+        alert("Please enter valid numbers for all fields.");
+        return;
+    }
+
+    const GA_WK = roundUpToNearest10((GA * 12) / 52);
+    const GA_D = roundUpToNearest10(GA_WK / WorkDays);
+    const clientsNeeded = roundUpToNearest10(GA_D / CV);
+
+    const incomePerDay = roundUpToNearest10(ClientsDaily * CV);
+    const incomePerWeek = roundUpToNearest10(incomePerDay * WorkDays);
+    const incomePerMonth = roundUpToNearest10(incomePerWeek * (52 / 12));
+
+    const weeklyDifference = incomePerWeek - GA_WK;
+    const monthlyDifference = incomePerMonth - GA;
+
+    const weeklyDifferencePercent = ((incomePerWeek - GA_WK) / GA_WK) * 100;
+
+    const clientsNeededDaily = roundUpToNearest(GA_D / CV);
+    const clientsNeededWeekly = roundUpToNearest(clientsNeededDaily * WorkDays);
+    const clientsNeededMonthly = roundUpToNearest(clientsNeededWeekly * (52 / 12));
+
+    let message = "";
+    if (monthlyDifference < 0) {
+        message = `<span class="note-negative"> 😔 Based on these calculations, there is a weekly shortfall of ${formatCurrency(weeklyDifference)}. That's ${weeklyDifferencePercent.toFixed(0)}% less than your target.<br>
+        You might need to see more clients each day or work more days, alternatively you could increase your rates or try to target longer bookings. Play around with the numbers in the calculator a bit more.</span>`;
+    } else {
+        message = `<span class="note-positive">👍👍👍 It looks like you will hit your target with a weekly surplus of ${formatCurrency(weeklyDifference)}. That's ${weeklyDifferencePercent.toFixed(0)}% more than your target.</span>`;
+    }
+
+    let messageWorkingdays = "";
+    if (WorkDays <= 5) {
+        messageWorkingdays = `<span class="note-positive">👍 Looking achievable</span>`;
+    } else if (WorkDays === 6 || WorkDays === 7) {
+        messageWorkingdays = `<span class="note-caution"> 🤔 Be careful of burnout if you're working more than 5 days a week. Don't forget to take a break.</span>`;
+    } else {
+        messageWorkingdays = `<span class="note-negative"> 😔 You might have to adjust the numbers; working more than 7 days a week is not possible!</span>`;
+    }
+
+    const resultsDiv = document.getElementById('results');
+    resultsDiv.innerHTML = `
+        <h4>Your Income Goals</h4>
+        <div class="results-container">
+            <div class="row header">
+                <div class="col">Monthly</div>
+                <div class="col">Weekly</div>
+                <div class="col">Daily</div>
+            </div>
+            <div class="row">
+                <div class="col">${formatCurrency(GA)}</div>
+                <div class="col">${formatCurrency(GA_WK)}</div>
+                <div class="col">${formatCurrency(GA_D)}</div>
+            </div>
+        </div>
+        <hr>
+        <h4> How Can you hit your Income Goals</h4>
+        <p>Number of Clients paying <b>${formatCurrency(CV)}</b> if working <b>${WorkDays}</b> days per week Needed to Hit Goal </p>
+        <div class="results-container">
+            <div class="row header">
+                <div class="col">Monthly</div>
+                <div class="col">Weekly</div>
+                <div class="col">Daily</div>
+            </div>
+            <div class="row">
+                <div class="col">${clientsNeededMonthly}</div>
+                <div class="col">${clientsNeededWeekly}</div>
+                <div class="col">${clientsNeededDaily}</div>
+            </div>
+        </div>
+        ${message}
+        <p>*${messageWorkingdays}</p>
+    `;
+}
+</script>
